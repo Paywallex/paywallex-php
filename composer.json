@@ -1,0 +1,10 @@
+{
+  "name": "paywallex/paywallex-php",
+  "description": "SDK serveur officiel de l'API Paywallex /v1 : sessions de paiement Mobile Money, remboursements, litiges, abonnements, webhooks signés.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["paywallex", "paiement", "mobile money", "orange money", "mtn momo", "wave", "xof", "api"],
+  "homepage": "https://paywallex.app/developpeurs",
+  "require": { "php": ">=8.1", "ext-curl": "*", "ext-json": "*" },
+  "autoload": { "psr-4": { "Paywallex\\": "src/" } }
+}
