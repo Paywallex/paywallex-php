@@ -41,6 +41,27 @@ header('Location: ' . $session['url']);
 
 Les montants sont en XOF entiers : `2500` veut dire 2 500 F.
 
+## Paywallex Elements (payer sur votre site)
+
+Créez la session sur votre serveur, puis passez seulement `client_secret` à `elements.js` dans la page. Le client confirme sur son téléphone avec Face ID ; sans l'app, il paie dans une fenêtre Paywallex.
+
+```php
+$session = $paywallex->elementSessions->create([
+    'mode' => 'subscription',
+    'plan' => $planId,
+    'allowed_origins' => ['https://boutique.ci'],
+]);
+// $session['client_secret'] (pwx_es_…) part dans la page, jamais votre clé pwx_sk_…
+$paywallex->elementSessions->retrieve($session['id']); // status : succeeded
+```
+
+## Facturation à l'usage
+
+```php
+$paywallex->reportUsage($subscriptionId, 120, 'SMS envoyés', 'sms-2026-10-25');
+$paywallex->usage($subscriptionId); // consommations et plafond
+```
+
 ## Vérifier un webhook
 
 Vérifiez la signature avant de traiter un événement. Le SDK compare en temps constant et refuse un horodatage de plus de 5 minutes.
@@ -97,8 +118,9 @@ $paywallex->refunds->create(['payment' => $paymentId], 'remboursement-CMD-1042')
 | `payments`, `refunds`, `disputes` | `list`, `retrieve`, `all` (toutes les pages) ; `refunds->create` |
 | `payouts`, `events`, `statements` | `list`, `retrieve` |
 | `customers`, `paymentLinks`, `invoices`, `pots`, `plans`, `coupons`, `subscriptions` | `list`, `create`, `retrieve`, `update`, `action` |
+| `elementSessions` | `create`, `retrieve`, `action('cancel')` (Paywallex Elements) |
 | `webhookEndpoints` | `list`, `create`, `action('rotate_secret')`, `deleteWebhookEndpoint()` |
-| client | `account()`, `balance()`, `networkStatus()`, `uploadFile()`, `addDisputeEvidence()` |
+| client | `account()`, `balance()`, `networkStatus()`, `uploadFile()`, `addDisputeEvidence()`, `reportUsage()`, `usage()` |
 
 Accepter un litige (rembourser) ou le contester se fait dans le portail Paywallex, jamais par l'API. Un abonnement ou une hausse de prix est toujours accepté par le client dans Paywallex.
 

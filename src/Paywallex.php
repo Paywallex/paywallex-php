@@ -26,14 +26,16 @@ namespace Paywallex;
  */
 final class Paywallex
 {
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.1.0';
 
     private const SERVICES = [
         'checkoutSessions' => ['checkout_sessions', []], 'payments' => ['payments', []], 'refunds' => ['refunds', []],
         'disputes' => ['disputes', []], 'payouts' => ['payouts', []], 'events' => ['events', []],
         'customers' => ['customers', ['archive']], 'paymentLinks' => ['payment_links', ['cancel']], 'invoices' => ['invoices', ['issue', 'cancel']],
         'pots' => ['pots', ['close', 'cancel']], 'statements' => ['statements', []], 'plans' => ['plans', []], 'coupons' => ['coupons', ['archive']],
-        'subscriptions' => ['subscriptions', ['cancel', 'pause', 'resume', 'change_plan', 'manage_link']],
+        'subscriptions' => ['subscriptions', ['cancel', 'pause', 'resume', 'change_plan', 'manage_link', 'usage']],
+        // DV7 : Paywallex Elements (encadré sur votre site). Passez client_secret à elements.js.
+        'elementSessions' => ['elements/sessions', ['cancel']],
         'webhookEndpoints' => ['webhook_endpoints', ['rotate_secret']],
     ];
 
@@ -83,6 +85,22 @@ final class Paywallex
         [$status] = $this->send('PUT', (string) $f['upload_url'], ['Content-Type' => $contentType], $bytes);
         if ($status < 200 || $status >= 300) throw new PaywallexException("Dépôt du fichier refusé ({$status}).", $status, 'file_upload_failed');
         return $f;
+    }
+
+    /**
+     * DV7 : déclare une consommation (facturation à l'usage). 402 usage_cap_reached / usage_credits_exhausted si l'abonné doit agir.
+     * @return array<string, mixed>
+     */
+    public function reportUsage(string $subscriptionId, int $quantity, ?string $description = null, ?string $idempotencyKey = null): array
+    {
+        return $this->request('POST', '/v1/subscriptions/' . rawurlencode($subscriptionId) . '/usage',
+            ['quantity' => $quantity] + ($description !== null ? ['description' => $description] : []), $idempotencyKey);
+    }
+
+    /** DV7 : consommations déclarées et résumé (plafond, crédits restants). @param array<string, mixed> $params @return array<string, mixed> */
+    public function usage(string $subscriptionId, array $params = []): array
+    {
+        return $this->request('GET', '/v1/subscriptions/' . rawurlencode($subscriptionId) . '/usage', $params);
     }
 
     /** @return array<string, mixed> */
