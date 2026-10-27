@@ -36,8 +36,8 @@ check('erreur /v1 : code, param, request_id', function () {
 check('clé obligatoire, en-têtes, adresse', function () {
     throwsCode(fn () => new Paywallex(''), 'configuration_error');
     $seen = null; $t = function ($m, $u, $h) use (&$seen) { $seen = [$m, $u, $h]; return [200, [], '{"object":"network_status","data":[]}']; };
-    (new Paywallex('pwx_sk_test_x', ['transport' => $t, 'base_url' => 'https://api.paywallx.xyz/', 'language' => 'en']))->networkStatus();
-    eq($seen[1], 'https://api.paywallx.xyz/v1/network_status'); eq($seen[2]['Authorization'], 'Bearer pwx_sk_test_x'); eq($seen[2]['Accept-Language'], 'en');
+    (new Paywallex('pwx_sk_test_x', ['transport' => $t, 'base_url' => 'https://api.paywallex.app/', 'language' => 'en']))->networkStatus();
+    eq($seen[1], 'https://api.paywallex.app/v1/network_status'); eq($seen[2]['Authorization'], 'Bearer pwx_sk_test_x'); eq($seen[2]['Accept-Language'], 'en');
     eq(isset($seen[2]['Idempotency-Key']), false);
 });
 check('pagination : suit starting_after', function () {
@@ -68,12 +68,12 @@ check('bac à sable : session avec panier (compte non démo)', function () use (
 });
 check('DV7 : Elements et usage aux bonnes adresses', function () {
     $seen = []; $t = function ($m, $u, $h, $b) use (&$seen) { $seen[] = [$m, $u, $b]; return [200, [], '{"id":"es_1","object":"element_session","client_secret":"pwx_es_x"}']; };
-    $px = new Paywallex('pwx_sk_test_x', ['transport' => $t, 'base_url' => 'https://api.paywallx.xyz']);
+    $px = new Paywallex('pwx_sk_test_x', ['transport' => $t, 'base_url' => 'https://api.paywallex.app']);
     eq($px->elementSessions->create(['mode' => 'subscription', 'plan' => 'c332106f-e94b-4c73-bde5-68d01f0018da'])['client_secret'], 'pwx_es_x');
     $px->elementSessions->retrieve('es_1'); $px->elementSessions->action('es_1', 'cancel');
     $px->reportUsage('sub_1', 3, 'Images'); $px->usage('sub_1', ['limit' => 5]);
-    eq(array_map(fn ($x) => $x[0] . ' ' . $x[1], $seen), ['POST https://api.paywallx.xyz/v1/elements/sessions', 'GET https://api.paywallx.xyz/v1/elements/sessions/es_1',
-        'POST https://api.paywallx.xyz/v1/elements/sessions/es_1/cancel', 'POST https://api.paywallx.xyz/v1/subscriptions/sub_1/usage', 'GET https://api.paywallx.xyz/v1/subscriptions/sub_1/usage?limit=5']);
+    eq(array_map(fn ($x) => $x[0] . ' ' . $x[1], $seen), ['POST https://api.paywallex.app/v1/elements/sessions', 'GET https://api.paywallex.app/v1/elements/sessions/es_1',
+        'POST https://api.paywallex.app/v1/elements/sessions/es_1/cancel', 'POST https://api.paywallex.app/v1/subscriptions/sub_1/usage', 'GET https://api.paywallex.app/v1/subscriptions/sub_1/usage?limit=5']);
     eq(json_decode((string) $seen[3][2], true), ['quantity' => 3, 'description' => 'Images']);
 });
 echo "\n$pass réussis, $fail échoués, $skip sautés\n";
