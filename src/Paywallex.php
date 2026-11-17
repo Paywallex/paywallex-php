@@ -12,7 +12,8 @@ namespace Paywallex;
  * @property-read Service $payments          list, retrieve, all
  * @property-read Service $refunds           create, list, retrieve, all
  * @property-read Service $disputes          list, retrieve, all (justificatifs : addDisputeEvidence)
- * @property-read Service $payouts           list, retrieve
+ * @property-read Service $payouts           list, retrieve, create (à confirmer dans Paywallex)
+ * @property-read Service $beneficiaries     list, retrieve
  * @property-read Service $events            list, retrieve
  * @property-read Service $customers         list, create, retrieve, update, action('archive')
  * @property-read Service $paymentLinks      … action('cancel')
@@ -26,11 +27,11 @@ namespace Paywallex;
  */
 final class Paywallex
 {
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.4.0';
 
     private const SERVICES = [
         'checkoutSessions' => ['checkout_sessions', []], 'payments' => ['payments', []], 'refunds' => ['refunds', []],
-        'disputes' => ['disputes', []], 'payouts' => ['payouts', []], 'events' => ['events', []],
+        'disputes' => ['disputes', []], 'payouts' => ['payouts', []], 'beneficiaries' => ['beneficiaries', []], 'events' => ['events', []],
         'customers' => ['customers', ['archive']], 'paymentLinks' => ['payment_links', ['cancel']], 'invoices' => ['invoices', ['issue', 'cancel']],
         'pots' => ['pots', ['close', 'cancel']], 'statements' => ['statements', []], 'plans' => ['plans', []], 'coupons' => ['coupons', ['archive']],
         'subscriptions' => ['subscriptions', ['cancel', 'pause', 'resume', 'change_plan', 'manage_link', 'usage']],
